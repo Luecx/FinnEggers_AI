@@ -1,6 +1,7 @@
 package qlearning.neuralnetwork;
 
-import neuralnetworks.Network;
+
+import network.Network;
 
 /**
  * Created by finne on 04.02.2018.
@@ -20,7 +21,6 @@ public class QMap {
     }
 
     public void setNetwork(Network network) {
-        if(network.getO)
         this.network = network;
     }
 

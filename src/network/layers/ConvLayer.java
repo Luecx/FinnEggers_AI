@@ -113,6 +113,68 @@ public class ConvLayer extends Layer{
     public static void main(String[] args) {
         NetworkBuilder builder = new NetworkBuilder(3,5,5);
         builder.addLayer(new ConvLayer(2,3,2,1));
+
+        double[][][] input = new double[][][]
+                {
+                        {
+                                {0,1,2,2,1},
+                                {1,1,0,1,1},
+                                {1,1,0,0,2},
+                                {0,2,1,0,2},
+                                {1,0,0,0,2}},
+                        {
+                                {2,0,1,1,2},
+                                {1,0,2,2,1},
+                                {1,1,2,2,1},
+                                {0,1,1,1,0},
+                                {0,0,1,1,2}},
+
+                        {
+                                {1,1,0,2,2},
+                                {2,2,1,1,0},
+                                {0,0,0,1,1},
+                                {0,0,2,0,2},
+                                {1,0,1,1,0}
+                        }
+                };
+
+
+        double[][][] filter1 = ArrayTools.flipWidthAndHeight(new double[][][]
+                {
+                        {
+                            {1,-1,-1},
+                            {1,0,1},
+                            {-1,-1,1}},
+                        {
+                            {0,0,-1},
+                            {1,1,0},
+                            {-1,0,0}},
+
+                        {
+                            {-1,-1,1},
+                            {-1,-1,1},
+                            {-1,1,0}
+                        }
+                });
+        double[][][] filter2 = ArrayTools.flipWidthAndHeight(new double[][][]
+                {
+                        {
+                                {1,0,1},
+                                {0,-1,0},
+                                {0,-1,-1}},
+                        {
+                                {-1,1,1},
+                                {-1,1,0},
+                                {-1,-1,0}},
+
+                        {
+                                {0,-1,0},
+                                {-1,1,0},
+                                {1,1,-1}
+                        }
+                });
+
+        Layer.printArray(filter1);
     }
 
 }
