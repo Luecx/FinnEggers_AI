@@ -1,5 +1,10 @@
 package network.tools;
 
+import qlearning.neuralnetwork.QStateTouple;
+
+import java.util.ArrayList;
+import java.util.Random;
+
 /**
  * Created by finne on 26.01.2018.
  */
@@ -89,6 +94,29 @@ public class ArrayTools {
         }
     }
 
+    public static <T extends Object> T[] extractBatch(T[] array, int size) {
+        if (size > 0 && size < array.length) {
+            ArrayList<T> out = new ArrayList<T>();
+            int index = 0;
+            Integer[] ids = ArrayTools.randomValues(0, array.length - 1, size);
+            for (Integer i : ids) {
+                out.add(array[i]);
+            }
+            return out.toArray(array);
+        } else return array;
+    }
+
+    public static void shuffleArray(Object[] ar){
+        Random rnd = new Random();
+        for (int i = ar.length - 1; i > 0; i--)
+        {
+            int index = rnd.nextInt(i + 1);
+            Object a = ar[index];
+            ar[index] = ar[i];
+            ar[i] = a;
+        }
+
+    }
 
     public static Integer[] randomValues(int lowerBound, int upperBound, int amount) {
 

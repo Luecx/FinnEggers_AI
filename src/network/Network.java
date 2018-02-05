@@ -49,6 +49,10 @@ public class Network {
         return this;
     }
 
+    public ErrorFunction getErrorFunction( ){
+        return this.outputLayer.getErrorFunction();
+    }
+
     public InputLayer getInputLayer() {
         return inputLayer;
     }
@@ -111,6 +115,8 @@ public class Network {
     public double[][][] getInput( ){
         return ArrayTools.copyArray(this.inputLayer.getOutput_values());
     }
+
+
 
     public void analyseNetwork() {
         Layer cur = inputLayer;

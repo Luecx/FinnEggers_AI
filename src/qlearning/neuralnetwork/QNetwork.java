@@ -1,6 +1,8 @@
 package qlearning.neuralnetwork;
 
 import network.Network;
+import network.data.TrainSet;
+import network.functions.error.MSESingleError1D;
 import network.tools.ArrayTools;
 
 import java.util.*;
@@ -26,6 +28,7 @@ public class QNetwork {
 
     public QNetwork(Network network, QGame qGame) throws Exception {
         this.network = network;
+        this.network.setErrorFunction(new MSESingleError1D(0,0));
         this.qGame = qGame;
         if(this.network.getINPUT_DEPTH() != qGame.getSTATE_DEFINITION_DEPTH() ||
                 this.network.getINPUT_WIDTH() != qGame.getSTATE_DEFINITION_WIDTH() ||
@@ -58,16 +61,28 @@ public class QNetwork {
             buffer.push(touple);
             if(buffer.size() > buffer_size) {
                 buffer.pop();
-
+                learnBuffer();
             }
         }
     }
 
+
+
     private void learnBuffer() {
-        Iterator<QStateTouple> e = buffer.iterator();
-        while(e.hasNext()) {
-            QStateTouple q = e.next();
-            network.train();
+
+        QStateTouple[] out = buffer.toArray(new QStateTouple[0]);
+        QStateTouple[] batch = ArrayTools.extractBatch(out, batch_size);
+        ArrayTools.shuffleArray(batch);
+
+        for(int i = 0; i < iterations_per_batch; i++) {
+            for(QStateTouple t: batch){
+
+                ((MSESingleError1D)network.getErrorFunction()).expected_output =
+                        t.getNext_state().getReward() + discount_factor * networkRecommendation(t.next_state);
+                ((MSESingleError1D)network.getErrorFunction()).error_index = t.action;
+
+                network.train(t.getPrev_state().getData(), null, learning_rate);
+            }
         }
     }
 
