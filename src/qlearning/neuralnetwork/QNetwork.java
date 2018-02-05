@@ -66,7 +66,15 @@ public class QNetwork {
         }
     }
 
+    public void validate(int its) {
 
+        for(int i = 0; i < its; i++) {
+
+            int action = networkRecommendation(this.qGame.getCurrentState());
+            qGame.performAction(action);
+            qGame.printGameState();
+        }
+    }
 
     private void learnBuffer() {
 

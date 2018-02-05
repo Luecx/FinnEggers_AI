@@ -1,5 +1,6 @@
 package qlearning.neuralnetwork;
 
+import network.layers.Layer;
 import network.tools.ArrayTools;
 
 /**
@@ -57,6 +58,10 @@ public abstract class QGame {
 
     public int getSTATE_ACTIONS() {
         return STATE_ACTIONS;
+    }
+
+    public void printGameState() {
+        Layer.printArray(currentState);
     }
 
     public double getCurrentStateReward() {
