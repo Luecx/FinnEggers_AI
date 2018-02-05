@@ -1,5 +1,6 @@
 package network.layers;
 
+import network.Network;
 import network.NetworkBuilder;
 import network.functions.activation.ActivationFunction;
 import network.functions.activation.ReLU;
@@ -48,20 +49,6 @@ public class ConvLayer extends Layer{
         this.filter[index] = filter;
     }
 
-    private double dotProduct(int channel, int startX, int startY){
-        double sum = 0;
-        for(int i = 0; i < filter_size; i++) {
-            for(int n = 0; n < filter_size; n++) {
-                if(startX + i >= 0 && startX + i < this.INPUT_WIDTH && startY + n >= 0 && startY + n < this.INPUT_HEIGHT){
-                    for(int d = 0; d < this.INPUT_DEPTH; d++) {
-                        sum += filter[channel][d][i][n] * this.getInput_values()[d][startX + i][startY + n];
-                    }
-                }
-            }
-        }
-        return sum;
-    }
-
     @Override
     protected void on_build() throws Exception {
         filter = ArrayTools.createRandomArray(channel_amount, this.getINPUT_DEPTH(), filter_size, filter_size, lowerWeightsRange, upperWeigthsRange);
@@ -72,11 +59,11 @@ public class ConvLayer extends Layer{
     protected void calculateOutputDimensions() throws Exception {
 
         this.OUTPUT_DEPTH = channel_amount;
-        this.OUTPUT_WIDTH = (this.INPUT_WIDTH + this.padding * 2 - filter_size) / filter_Stride;
-        this.OUTPUT_HEIGHT = (this.INPUT_HEIGHT + this.padding * 2 - filter_size) / filter_Stride;
+        this.OUTPUT_WIDTH = (this.INPUT_WIDTH + this.padding * 2 - filter_size) / filter_Stride + 1;
+        this.OUTPUT_HEIGHT = (this.INPUT_HEIGHT + this.padding * 2 - filter_size) / filter_Stride + 1;
 
-        double g = ((double)this.INPUT_WIDTH + (double)this.padding * 2 - (double)filter_size) / (double)filter_Stride;
-        double g1 = ((double)this.INPUT_HEIGHT + (double)this.padding * 2 - (double)filter_size) / (double)filter_Stride;
+        double g = ((double)this.INPUT_WIDTH + (double)this.padding * 2 - (double)filter_size) / (double)filter_Stride + 1;
+        double g1 = ((double)this.INPUT_HEIGHT + (double)this.padding * 2 - (double)filter_size) / (double)filter_Stride + 1;
 
         if(g != (int)g || g1 != (int)g1) throw new Exception("Format does not work! Use a different padding-value!");
 
@@ -84,20 +71,32 @@ public class ConvLayer extends Layer{
 
     @Override
     public void calculate() {
-        for(int channel = 0; channel < this.OUTPUT_DEPTH; channel++) {
-            for(int x = 0; x < this.OUTPUT_WIDTH; x ++) {
-                for(int y = 0; y < this.OUTPUT_HEIGHT; y ++) {
-                    int startIndexX = x * filter_Stride - padding;
-                    int startIndexY = y * filter_Stride - padding;
-
-                    double v = dotProduct(channel, startIndexX, startIndexY);
-
-                    this.output_values[channel][x][y] = activationFunction.activation(v);
-                    this.output_derivative_values[channel][x][y] = activationFunction.activation_prime(v);
-
+        for(int i = 0; i < this.OUTPUT_DEPTH; i++){
+            for(int j = 0; j < this.OUTPUT_WIDTH; j++){
+                for(int n = 0; n < this.OUTPUT_HEIGHT; n++){
+                    this.output_values[i][j][n] = activationFunction.activation(this.calcSample(i, j, n));
+                    this.output_derivative_values[i][j][n] = activationFunction.activation_prime(this.calcSample(i, j, n));
                 }
             }
         }
+    }
+
+    public double calcSample(int actIndex, int x, int y){
+        double total = bias[actIndex];
+        for(int i = 0; i < filter_size; i++){
+            for(int n = 0; n < filter_size; n++){
+                for(int j = 0; j < getINPUT_DEPTH(); j++){
+                    int x_i = -padding + (x * filter_Stride) + i;
+                    int y_i = -padding + (y * filter_Stride) + n;
+                    if(x_i >= 0 && y_i >= 0 && x_i < getINPUT_WIDTH() && y_i < getINPUT_HEIGHT()){
+                        total += filter[actIndex][j][i][n]*
+                                getInput_values()[j][x_i][y_i];
+
+                    }
+                }
+            }
+        }
+        return total;
     }
 
     @Override
@@ -112,9 +111,10 @@ public class ConvLayer extends Layer{
 
     public static void main(String[] args) {
         NetworkBuilder builder = new NetworkBuilder(3,5,5);
-        builder.addLayer(new ConvLayer(2,3,2,1));
+        ConvLayer convLayer = new ConvLayer(2,3,2,1);
+        builder.addLayer(convLayer);
 
-        double[][][] input = new double[][][]
+        double[][][] input = ArrayTools.flipWidthAndHeight(new double[][][]
                 {
                         {
                                 {0,1,2,2,1},
@@ -134,9 +134,9 @@ public class ConvLayer extends Layer{
                                 {2,2,1,1,0},
                                 {0,0,0,1,1},
                                 {0,0,2,0,2},
-                                {1,0,1,1,0}
+                                {2,0,1,1,0}
                         }
-                };
+                });
 
 
         double[][][] filter1 = ArrayTools.flipWidthAndHeight(new double[][][]
@@ -174,7 +174,13 @@ public class ConvLayer extends Layer{
                         }
                 });
 
-        Layer.printArray(filter1);
+        Network network = builder.buildNetwork();
+
+        convLayer.setFilter(0,filter1, 1);
+        convLayer.setFilter(1,filter2, 0);
+
+        Layer.printArray(network.calculate(input));
+
     }
 
 }
