@@ -3,10 +3,7 @@ package qlearning.neuralnetwork;
 import network.Network;
 import network.tools.ArrayTools;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by finne on 05.02.2018.
@@ -25,7 +22,7 @@ public class QNetwork {
     public double discount_factor = 0.8;
     public double learning_rate = 0.2;
 
-    Deque<QState> buffer = new ArrayDeque<>();
+    Deque<QStateTouple> buffer = new ArrayDeque<>();
 
     public QNetwork(Network network, QGame qGame) throws Exception {
         this.network = network;
@@ -46,20 +43,32 @@ public class QNetwork {
 
         for(int i = 0; i < its; i++) {
 
+            int action = 0;
+            if(Math.random() > threshold) {
+                action = (int)(Math.random() * qGame.getSTATE_ACTIONS());
+            }else{
+                action = networkRecommendation(this.qGame.getCurrentState());
+            }
+            qGame.performAction(action);
+
+            QState nextState = qGame.getCurrentState();
+            QStateTouple touple = new QStateTouple(currentState, nextState, action);
+            currentState = nextState;
+
+            buffer.push(touple);
+            if(buffer.size() > buffer_size) {
+                buffer.pop();
+
+            }
         }
+    }
 
-        double ran = Math.random();
-        int action = 0;
-        QState q = qGame.getCurrentState();
-        if(ran > threshold) {
-            action = (int)(Math.random() * qGame.getSTATE_ACTIONS());
-        }else{
-            action = networkRecommendation(this.qGame.getCurrentState());
+    private void learnBuffer() {
+        Iterator<QStateTouple> e = buffer.iterator();
+        while(e.hasNext()) {
+            QStateTouple q = e.next();
+            network.train();
         }
-
-        qGame.performAction(action);
-        double reward = qGame.getCurrentStateReward();
-
     }
 
     public int networkRecommendation(QState qState) {
