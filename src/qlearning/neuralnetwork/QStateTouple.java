@@ -15,6 +15,15 @@ public class QStateTouple {
         this.action = action;
     }
 
+    @Override
+    public String toString() {
+        return "QStateTouple{" +
+                "prev_state=" + prev_state +
+                ", next_state=" + next_state +
+                ", action=" + action +
+                '}';
+    }
+
     public QState getPrev_state() {
         return prev_state;
     }

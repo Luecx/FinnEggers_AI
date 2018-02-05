@@ -1,8 +1,13 @@
 package qlearning.neuralnetwork.qgames;
 
+import network.Network;
+import network.NetworkBuilder;
+import network.layers.DenseLayer;
 import network.layers.Layer;
 import qlearning.neuralnetwork.QGame;
+import qlearning.neuralnetwork.QNetwork;
 import qlearning.neuralnetwork.QState;
+import sun.nio.ch.Net;
 
 /**
  * Created by finne on 05.02.2018.
@@ -27,6 +32,8 @@ public class Cheese1D extends QGame {
     @Override
     public void performAction(int action) {
         this.currentState[0][0][currentIndex] = 0;
+        currentStateReward = 0;
+
         if(action == 0) {
             this.currentIndex --;
         }else{
@@ -64,5 +71,21 @@ public class Cheese1D extends QGame {
     private void reset() {
         this.currentState[0][0][currentIndex] = 0;
         this.currentState[0][0][size / 2] = 1;
+        currentIndex = size/2;
+    }
+
+    public static void main(String[] args) throws Exception {
+        Cheese1D cheese1D = new Cheese1D(20,3,16);
+
+        NetworkBuilder builder = new NetworkBuilder(1,1,20);
+        builder.addLayer(new DenseLayer(18));
+        builder.addLayer(new DenseLayer(12));
+        builder.addLayer(new DenseLayer(2));
+        Network network = builder.buildNetwork();
+
+        QNetwork qNetwork = new QNetwork( network, cheese1D);
+        qNetwork.batch_size = 100;
+        qNetwork.train(2000);
+        qNetwork.validate(100);
     }
 }

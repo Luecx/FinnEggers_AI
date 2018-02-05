@@ -30,6 +30,10 @@ public class QNetwork {
         this.network = network;
         this.network.setErrorFunction(new MSESingleError1D(0,0));
         this.qGame = qGame;
+        
+        System.out.println(network.getINPUT_DEPTH() + " " + network.getINPUT_WIDTH() + " " + network.getINPUT_HEIGHT());
+        System.out.println(network.getOUTPUT_DEPTH() + " " + network.getOUTPUT_WIDTH() + " " + network.getOUTPUT_HEIGHT());
+        
         if(this.network.getINPUT_DEPTH() != qGame.getSTATE_DEFINITION_DEPTH() ||
                 this.network.getINPUT_WIDTH() != qGame.getSTATE_DEFINITION_WIDTH() ||
                 this.network.getINPUT_HEIGHT() != qGame.getSTATE_DEFINITION_HEIGHT() ||
@@ -46,6 +50,8 @@ public class QNetwork {
 
         for(int i = 0; i < its; i++) {
 
+            System.out.println(i);
+
             int action = 0;
             if(Math.random() > threshold) {
                 action = (int)(Math.random() * qGame.getSTATE_ACTIONS());
@@ -61,6 +67,7 @@ public class QNetwork {
             buffer.push(touple);
             if(buffer.size() > buffer_size) {
                 buffer.pop();
+
                 learnBuffer();
             }
         }
@@ -69,6 +76,12 @@ public class QNetwork {
     public void validate(int its) {
 
         for(int i = 0; i < its; i++) {
+
+            try{
+                Thread.sleep(400);
+            }catch (Exception e) {
+
+            }
 
             int action = networkRecommendation(this.qGame.getCurrentState());
             qGame.performAction(action);
@@ -84,12 +97,14 @@ public class QNetwork {
 
         for(int i = 0; i < iterations_per_batch; i++) {
             for(QStateTouple t: batch){
+                if(t != null) {
 
-                ((MSESingleError1D)network.getErrorFunction()).expected_output =
-                        t.getNext_state().getReward() + discount_factor * networkRecommendation(t.next_state);
-                ((MSESingleError1D)network.getErrorFunction()).error_index = t.action;
+                    ((MSESingleError1D)network.getErrorFunction()).expected_output =
+                            t.getNext_state().getReward() + discount_factor * networkRecommendation(t.next_state);
+                    ((MSESingleError1D)network.getErrorFunction()).error_index = t.action;
 
-                network.train(t.getPrev_state().getData(), null, learning_rate);
+                    network.train(t.getPrev_state().getData(), new double[1][1][qGame.STATE_ACTIONS], learning_rate);
+                }
             }
         }
     }
