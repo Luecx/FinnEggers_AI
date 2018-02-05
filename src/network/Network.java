@@ -128,4 +128,23 @@ public class Network {
             Layer.printArray(cur.getOutput_error_values());
         }
     }
+
+    public int getINPUT_DEPTH(){
+        return inputLayer.getOUTPUT_DEPTH();
+    }
+    public int getINPUT_WIDTH(){
+        return inputLayer.getOUTPUT_DEPTH();
+    }
+    public int getINPUT_HEIGHT(){
+        return inputLayer.getOUTPUT_DEPTH();
+    }
+    public int getOUTPUT_DEPTH(){
+        return outputLayer.getOUTPUT_DEPTH();
+    }
+    public int getOUTPUT_WIDTH(){
+        return outputLayer.getOUTPUT_DEPTH();
+    }
+    public int getOUTPUT_HEIGHT(){
+        return outputLayer.getOUTPUT_DEPTH();
+    }
 }
