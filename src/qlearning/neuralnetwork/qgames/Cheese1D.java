@@ -4,9 +4,11 @@ import network.Network;
 import network.NetworkBuilder;
 import network.layers.DenseLayer;
 import network.layers.Layer;
+import network.tools.ArrayTools;
 import qlearning.neuralnetwork.QGame;
 import qlearning.neuralnetwork.QNetwork;
 import qlearning.neuralnetwork.QState;
+import qlearning.neuralnetwork.console.Console;
 import sun.nio.ch.Net;
 
 /**
@@ -52,7 +54,7 @@ public class Cheese1D extends QGame {
 
     @Override
     public void printGameState() {
-        String t = "#";
+        String t = "z#";
         for(int i = 1; i < this.size - 1; i++) {
             if(this.negativeIndex == i){
                 t += "#";
@@ -67,6 +69,22 @@ public class Cheese1D extends QGame {
         System.out.print("\r" + t +"#");
     }
 
+    public void printRecommendationField(Network network){
+        String t = "z# ";
+        for(int i = 1; i < this.size - 1; i++) {
+            if(this.negativeIndex == i){
+                t += "#";
+            }else if(this.positiveIndex == i) {
+                t += "O";
+            }else{
+                double[][][] in = new double[1][1][size];
+                in[0][0][i] = 1;
+                int id = ArrayTools.indexOfHighestValue(network.calculate(in)[0][0]);
+                t += id;
+            }
+        }
+        System.out.print("\r" + t +"#");
+    }
 
     private void reset() {
         this.currentState[0][0][currentIndex] = 0;
@@ -86,6 +104,10 @@ public class Cheese1D extends QGame {
         QNetwork qNetwork = new QNetwork( network, cheese1D);
         qNetwork.batch_size = 100;
         qNetwork.train(2000);
-        qNetwork.validate(100);
+
+        Console c = new Console();
+
+        qNetwork.validate(10);
+        cheese1D.printRecommendationField(qNetwork.getNetwork());
     }
 }

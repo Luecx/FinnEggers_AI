@@ -52,6 +52,11 @@ public class DenseLayer extends Layer {
         }
     }
 
+    public void printWeights() {
+        Layer.printArray(new double[][][]{this.weights});
+        Layer.printArray(new double[][][]{{this.bias}});
+    }
+
     @Override
     protected void calculateOutputDimensions() {
 

@@ -18,7 +18,7 @@ public class Mnist {
 
 
     public static void main(String[] args) {
-        TrainSet trainSet = createTrainSet(0,0);
+        TrainSet trainSet = createTrainSet(0,10000);
 
         NetworkBuilder builder = new NetworkBuilder(1,28,28);
         builder.addLayer(new TransformationLayer());
@@ -36,11 +36,9 @@ public class Mnist {
                 .weightsRange(-1,1));
         Network network = builder.buildNetwork();
 
-        Layer.printArray(trainSet.getInput(0));
+        network.train(trainSet, 1000,100,0.3);
 
-        network.train(trainSet, 1000,10,0.3);
-
-        Layer.printArray(network.calculate(trainSet.getInput(0)));
+        testTrainSet(network, trainSet, 10);
 
 //
 //        trainData(network, trainSet, 100,100,100);

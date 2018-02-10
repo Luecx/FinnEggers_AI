@@ -92,6 +92,7 @@ public class QGame {
 
     public static void main(String[] args) {
         QGame game = new QGame(15, 3, 12);
+        game.qTable.print();
         game.train(1000);
 
         game.validate(5);

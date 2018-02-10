@@ -1,11 +1,14 @@
 package network;
 
 import network.data.TrainSet;
+import network.layers.DenseLayer;
 import network.layers.InputLayer;
 import network.layers.Layer;
 import network.layers.OutputLayer;
 import network.tools.ArrayTools;
 import network.functions.error.ErrorFunction;
+
+import java.util.Date;
 
 /**
  * Created by finne on 25.01.2018.
@@ -108,6 +111,11 @@ public class Network {
         return t/(double)trainSet.size();
     }
 
+    public double overall_error(double[][][] in, double[][][] exp) {
+        this.calculate(in);
+        return this.getOutputLayer().overall_error(exp);
+    }
+
     public double[][][] getOutput( ){
         return ArrayTools.copyArray(this.outputLayer.getOutput_values());
     }
@@ -120,18 +128,16 @@ public class Network {
 
     public void analyseNetwork() {
         Layer cur = inputLayer;
-
         System.out.println(cur.getClass().getSimpleName());
-        System.out.println(">>>>> ns: [" + cur.getOUTPUT_DEPTH() + " "+ cur.getOUTPUT_WIDTH() + " " + cur.getOUTPUT_HEIGHT() +  "] <<<<<<<");
-
         while(cur.getNext_layer() != null) {
-            System.out.println("################################################################################################");
-            System.out.println ("");
+            System.out.println("..................................");
             cur = cur.getNext_layer();
             System.out.println(cur.getClass().getSimpleName());
-            System.out.println(">>>>> ns: [" + cur.getOUTPUT_DEPTH() + " "+ cur.getOUTPUT_WIDTH() + " " + cur.getOUTPUT_HEIGHT() +  "] <<<<<<<");
             Layer.printArray(cur.getOutput_values());
             Layer.printArray(cur.getOutput_error_values());
+            if(cur instanceof DenseLayer) {
+                ((DenseLayer) cur).printWeights();
+            }
         }
     }
 
