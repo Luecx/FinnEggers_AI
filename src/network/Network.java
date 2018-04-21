@@ -84,6 +84,13 @@ public class Network {
     public void train(double[][][] input, double[][][] expected, double eta) {
         if(this.getInputLayer().matchingDimensions(input) == false ||
                 this.getOutputLayer().matchingDimensions(expected) == false) {
+            System.err.println(
+                    this.inputLayer.getOUTPUT_DEPTH() + " - " + input.length + "\n" +
+                    this.inputLayer.getOUTPUT_WIDTH() + " - " + input[0].length + "\n" +
+                    this.inputLayer.getOUTPUT_HEIGHT() + " - " + input[0][0].length + "\n" +
+                    this.outputLayer.getOUTPUT_DEPTH() + " - " + expected.length + "\n" +
+                    this.outputLayer.getOUTPUT_WIDTH() + " - " + expected[0].length + "\n" +
+                    this.outputLayer.getOUTPUT_HEIGHT() + " - " + expected[0][0].length + "\n");
             return;
         }
         this.calculate(input);

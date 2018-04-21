@@ -90,7 +90,7 @@ public class DenseLayer extends Layer {
 
         for(int i = 0; i < this.OUTPUT_HEIGHT; i++) {
             double delta = - eta * this.output_error_values[0][0][i];
-            bias[i] += delta;
+            //bias[i] += delta;
 
             for(int prevNeuron = 0; prevNeuron < this.INPUT_HEIGHT; prevNeuron ++) {
                 weights[i][prevNeuron] += delta * getInput_values()[0][0][prevNeuron];

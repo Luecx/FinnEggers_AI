@@ -1,7 +1,5 @@
 package network.tools;
 
-import qlearning.neuralnetwork.QStateTouple;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -94,7 +92,7 @@ public class ArrayTools {
         }
     }
 
-    public static <T extends Object> T[] extractBatch(T[] array, int size) {
+    public static <T extends Object> T[] extractBatch(T[] array, T[] empty, int size) {
         if (size > 0 && size < array.length) {
             ArrayList<T> out = new ArrayList<T>();
             int index = 0;
@@ -102,7 +100,7 @@ public class ArrayTools {
             for (Integer i : ids) {
                 out.add(array[i]);
             }
-            return out.toArray(array);
+            return (out.toArray(empty));
         } else return array;
     }
 
