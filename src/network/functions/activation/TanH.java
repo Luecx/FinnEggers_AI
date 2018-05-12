@@ -3,15 +3,15 @@ package network.functions.activation;
 /**
  * Created by finne on 22.01.2018.
  */
-public class ReLU extends ActivationFunction{
+public class TanH extends ActivationFunction{
 
     @Override
     public double activation(double x) {
-        return x >= 0 ? x:0;
+        return Math.tanh(x);
     }
 
     @Override
     public double activation_prime(double x) {
-        return x > 0 ? 1:0;
+        return 1 - Math.tanh(x) * Math.tanh(x);
     }
 }

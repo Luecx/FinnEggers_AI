@@ -41,7 +41,7 @@ public class TransformationLayer extends Layer {
             for(int n = 0; n< this.getINPUT_WIDTH(); n++) {
                 for(int j = 0;j < this.getINPUT_HEIGHT(); j++) {
                     int index = map(i,n,j);
-                    this.getInput_error_values()[i][n][j] = this.output_error_values[0][0][index];
+                    this.getPrev_layer().output_error_values[i][n][j] = this.output_error_values[0][0][index];
                 }
             }
         }

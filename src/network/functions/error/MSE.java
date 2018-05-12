@@ -17,10 +17,13 @@ public class MSE extends ErrorFunction{
             for(int n = 0; n < outputLayer.getOutput_values()[0].length; n++) {
                 for(int j = 0; j < outputLayer.getOutput_values()[0][0].length; j++){
                     v += (outputLayer.getOutput_values()[i][n][j] - expected[i][n][j]) * (outputLayer.getOutput_values()[i][n][j] - expected[i][n][j]);
+                    //System.out.println(c + "   " + outputLayer.getOutput_values()[i][n][j] + "  "  + expected[i][n][j] +   "  " + (outputLayer.getOutput_values()[i][n][j] - expected[i][n][j]));
                     c++;
                 }
             }
         }
+
+        //System.out.println(v + "  " + c );
 
         return v / (2 * c);
     }
@@ -34,6 +37,7 @@ public class MSE extends ErrorFunction{
         for(int i = 0; i < output.length; i++){
             for(int n = 0; n < output[0].length; n++) {
                 for(int j = 0; j < output[0][0].length; j++){
+                    //System.out.println(i + "   " + outputLayer.getOutput_values()[i][n][j] + "  "  + expected[i][n][j] +   "  " + (outputLayer.getOutput_values()[i][n][j] - expected[i][n][j]));
                     error_signals[i][n][j] = output_derivative[i][n][j] * (output[i][n][j] - expected[i][n][j]);
                 }
             }
