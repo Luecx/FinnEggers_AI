@@ -77,7 +77,7 @@ public class QController {
                         new Vector2i(12,4),});
         QController controller = new QController(game);
 
-        controller.train(100000);
+        controller.train(1000000);
         controller.printActionMap();
 
         Console c = new Console();

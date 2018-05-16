@@ -54,6 +54,10 @@ public class TrainSet {
         return t;
     }
 
+    public void remove(int index) {
+        this.data.remove(index);
+    }
+
     public void shuffle(){
         for(int i = 0; i < this.size(); i++){
             int index = (int)(Math.random() * this.size());
