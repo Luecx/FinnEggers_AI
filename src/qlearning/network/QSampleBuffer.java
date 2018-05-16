@@ -20,10 +20,19 @@ public class QSampleBuffer extends Stack<QMove> {
     }
 
     public QMove[] extractRandomBatch(int size) {
-        QMove[] ar = this.toArray(new QMove[0]);
-        ar = ArrayTools.extractBatch(ar, new QMove[0],size);
-        ArrayTools.shuffleArray(ar);
-        return ar;
+        if(size > this.size()) {
+
+            QMove[] ar = this.toArray(new QMove[0]);
+            ar = ArrayTools.extractBatch(ar, new QMove[0],this.size());
+            ArrayTools.shuffleArray(ar);
+            return ar;
+        }else{
+
+            QMove[] ar = this.toArray(new QMove[0]);
+            ar = ArrayTools.extractBatch(ar, new QMove[0],size);
+            ArrayTools.shuffleArray(ar);
+            return ar;
+        }
     }
 
     public void print() {

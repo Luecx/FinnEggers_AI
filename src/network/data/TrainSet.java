@@ -3,6 +3,7 @@ package network.data;
 import network.tools.ArrayTools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by finne on 26.01.2018.
@@ -45,9 +46,51 @@ public class TrainSet {
         } else return this;
     }
 
+    public TrainSet copy(){
+        TrainSet t = new TrainSet(INPUT_DEPTH, INPUT_WIDTH, INPUT_HEIGHT, OUTPUT_DEPTH, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+        for(int i = 0; i < this.size(); i++){
+            t.data.add(data.get(i));
+        }
+        return t;
+    }
+
+    public void shuffle(){
+        for(int i = 0; i < this.size(); i++){
+            int index = (int)(Math.random() * this.size());
+            double[][][][] a = data.get(i);
+            data.set(i, data.get(index));
+            data.set(index, a);
+        }
+    }
+
+    public ArrayList<TrainSet> shuffledParts(int size_each){
+        ArrayList<TrainSet> t = new ArrayList<>();
+        TrainSet trainSet = this.copy();
+        trainSet.shuffle();
+        for(int i = 0; i < this.size(); i++){
+            if(i % size_each == 0){
+                t.add(new TrainSet(INPUT_DEPTH, INPUT_WIDTH, INPUT_HEIGHT, OUTPUT_DEPTH, OUTPUT_WIDTH, OUTPUT_HEIGHT));
+            }
+            t.get(t.size()-1).data.add(trainSet.data.get(i));
+        }
+        return t;
+    }
 
     @Override
     public String toString() {
+        if(this.INPUT_DEPTH == 1 && this.INPUT_WIDTH == 1 && this.OUTPUT_DEPTH == 1 && this.OUTPUT_WIDTH == 1){
+            String s = "TrainSet{" +
+                    "INPUT_DEPTH=" + INPUT_DEPTH +
+                    ", INPUT_WIDTH=" + INPUT_WIDTH +
+                    ", INPUT_HEIGHT=" + INPUT_HEIGHT +
+                    ", OUTPUT_DEPTH=" + OUTPUT_DEPTH +
+                    ", OUTPUT_WIDTH=" + OUTPUT_WIDTH +
+                    ", OUTPUT_HEIGHT=" + OUTPUT_HEIGHT;
+            for(double[][][][] ar:data){
+                s += "\n    " + Arrays.toString(ar[0][0][0]) + "    >    " +Arrays.toString(ar[1][0][0]);
+            }
+            return s;
+        }
         return "TrainSet{" +
                 "INPUT_DEPTH=" + INPUT_DEPTH +
                 ", INPUT_WIDTH=" + INPUT_WIDTH +

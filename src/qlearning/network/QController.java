@@ -5,15 +5,15 @@ package qlearning.network;
  */
 public class QController {
 
-    private double learning_rate = 0.3;
+    private double learning_rate = 0.05;
     private double threshold = 0.6;
-    private double discount_factor = 0.99;
+    private double discount_factor = 0.9;
 
     private QNetwork network;
     private QGame qGame;
     private QSampleBuffer buffer;
 
-    private int buffer_size = 1000;
+    private int buffer_size = 100;
     private int batch_size = 100;
 
     public QController(QNetwork network, QGame qGame) {
@@ -91,9 +91,7 @@ public class QController {
 
         for(int i = 0; i < steps; i++) {
 
-            if(i % 1000 == 0){
-                System.out.println(i);
-            }
+            System.out.println(i);
 
             int decision;
             if(Math.random() > threshold) {
@@ -109,8 +107,10 @@ public class QController {
             buffer.push(new QMove(cur, decision, newState,reward));
             if(buffer.size() == buffer.getMax_size()){
                 QMove[] batch = buffer.extractRandomBatch(batch_size);
-                for(QMove c:batch){
-                    network.trainQMove(c, discount_factor, learning_rate);
+                for(int k = 0; k < 10; k++){
+                    for(QMove c:batch){
+                        network.trainQMove(c, discount_factor, learning_rate);
+                    }
                 }
             }
             cur = newState;

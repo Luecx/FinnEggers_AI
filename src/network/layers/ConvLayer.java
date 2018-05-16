@@ -121,7 +121,6 @@ public class ConvLayer extends Layer {
         return total;
     }
 
-
     @Override
     public void backprop_error() {
 
@@ -164,7 +163,7 @@ public class ConvLayer extends Layer {
             for (int output_w = 0; output_w < this.OUTPUT_WIDTH; output_w++) {
                 for (int output_h = 0; output_h < this.OUTPUT_HEIGHT; output_h++) {
 
-                    bias[output_d] += -getOutput_error_values()[output_d][output_w][output_h];
+                    bias[output_d] -= getOutput_error_values()[output_d][output_w][output_h] * eta;
 
                     for (int j = 0; j < getINPUT_DEPTH(); j++) {
                         for (int i = 0; i < filter_size; i++) {

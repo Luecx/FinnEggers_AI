@@ -3,9 +3,12 @@ package qlearning.network.game_2d;
 import network.Network;
 import network.NetworkBuilder;
 import network.functions.activation.LeakyReLU;
+import network.functions.activation.Softmax;
+import network.functions.activation.TanH;
 import network.layers.DenseLayer;
 import network.layers.Layer;
 import network.layers.TransformationLayer;
+import network.tools.ArrayTools;
 import qlearning.basic.console.Console;
 import qlearning.basic.dimensions_2_2.QTable;
 import qlearning.basic.vectors.Vector2i;
@@ -55,15 +58,15 @@ public class DollarGame extends QGame {
 
         if (isPositiveState(currentIndex)) {
             reset();
-            return 500;
+            return 1;
         } else if (isNegativeState(currentIndex) ||
                 currentIndex.x == 0 || currentIndex.x == dimension.y - 1 ||
                 currentIndex.y == 0 || currentIndex.y == dimension.z - 1) {
             reset();
-            return -500;
+            return -1;
         }
         this.currentState.getIn()[0][currentIndex.x][currentIndex.y] = 1;
-        return 0;
+        return -0.1;
     }
 
     private boolean isNegativeState(Vector2i state) {
@@ -149,33 +152,48 @@ public class DollarGame extends QGame {
 
     public static void main(String[] args) throws InterruptedException {
 
-        NetworkBuilder builder = new NetworkBuilder(1, 10, 10);
+        NetworkBuilder builder = new NetworkBuilder(1, 10, 3);
         builder.addLayer(new TransformationLayer());
-        builder.addLayer(new DenseLayer(4).weightsRange(-1, 1).biasRange(0, 0));
+        builder.addLayer(new DenseLayer(25).setActivationFunction(new TanH()));
+        builder.addLayer(new DenseLayer(4).setActivationFunction(new TanH()));
 
         Network neural = builder.buildNetwork();
 
-        QNetwork qNetwork = new QNetwork(neural);
-        DollarGame qGame = new DollarGame(
-                new Vector2i(10, 10),
-                new Vector2i[]{
-                        new Vector2i(4, 4)
-                },
-                new Vector2i[0]);
-        QController controller = new QController(qNetwork, qGame);
-        controller.setBatch_size(300);
-        controller.setBuffer_size(500);
+        double[][][] in = ArrayTools.createRandomArray(1,10,3,0,1);
+        double[][][] out = neural.calculate(in);
+        Layer.printArray(out);
 
-        controller.setThreshold(0.6);
-        controller.setDiscount_factor(0.9);
-        controller.setLearning_rate(1);
+        out[0][0][0] = 1;
+        neural.train(in,out,1);
 
-        controller.train(50000);
+        Layer.printArray(neural.calculate(in));
 
 
-        Console c = new Console();
 
-        controller.validate(50);
+//        QNetwork qNetwork = new QNetwork(neural);
+//        DollarGame qGame = new DollarGame(
+//                new Vector2i(10, 3),
+//                new Vector2i[]{
+//                        new Vector2i(4, 1)
+//                },
+//                new Vector2i[0]);
+//        QController controller = new QController(qNetwork, qGame);
+//        controller.setBatch_size(300);
+//        controller.setBuffer_size(300);
+//
+//        controller.setThreshold(0.7);
+//        controller.setDiscount_factor(0.99);
+//        controller.setLearning_rate(0.2);
+//
+//        controller.printActionMap();
+//        controller.train(500);
+//        controller.printActionMap();
+//
+//
+//        controller.setThreshold(0.99);
+//        Console c = new Console();
+//
+//        controller.validate(50);
     }
 
 }

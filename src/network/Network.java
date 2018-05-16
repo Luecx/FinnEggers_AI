@@ -1,6 +1,7 @@
 package network;
 
 import network.data.TrainSet;
+import network.functions.activation.ActivationFunction;
 import network.functions.activation.ReLU;
 import network.functions.activation.Sigmoid;
 import network.functions.activation.Softmax;
@@ -11,6 +12,8 @@ import network.layers.Layer;
 import network.layers.OutputLayer;
 import network.tools.ArrayTools;
 import network.functions.error.ErrorFunction;
+
+import java.util.ArrayList;
 
 /**
  * Created by finne on 25.01.2018.
@@ -94,29 +97,48 @@ public class Network {
         this.updateWeights(eta);
     }
 
-    public void train(TrainSet trainSet, int iterations, int batch_size, double eta) {
-
-        for (int it = 0; it < iterations; it++) {
-            TrainSet batch = trainSet.extractBatch(batch_size);
-            for (int k = 0; k < batch.size(); k++) {
-                train(batch.getInput(k), batch.getOutput(k), eta);
+    public void train(TrainSet trainSet, int epochs, int batch_size, double fall_of) {
+        double e = 0.1;
+        for (int i = 0; i < epochs; i++) {
+            ArrayList<TrainSet> trainSets = trainSet.shuffledParts(batch_size);
+            int index = 0;
+            for (TrainSet t : trainSets) {
+                index++;
+                for (int k = 0; k < t.size(); k++) {
+                    train(t.getInput(k), t.getOutput(k), e*fall_of);
+                }
+                e = overall_error(t);
+                System.out.println(index + "     " + e);
             }
-            System.out.println(it + "   " + this.overall_error(batch));
+            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<< " + i + " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         }
     }
 
-    public void train(TrainSet trainSet, int iterations, int batch_size, double init_eta, double factor) {
 
-        double er = init_eta;
 
-        for (int it = 0; it < iterations; it++) {
-            TrainSet batch = trainSet.extractBatch(batch_size);
-            for (int k = 0; k < batch.size(); k++) {
-                train(batch.getInput(k), batch.getOutput(k), er * factor);
-            }
-            System.out.println(it + "   " + (er = this.overall_error(batch)));
-        }
-    }
+//    public void train(TrainSet trainSet, int iterations, int batch_size, double eta) {
+//
+//        for (int it = 0; it < iterations; it++) {
+//            TrainSet batch = trainSet.extractBatch(batch_size);
+//            for (int k = 0; k < batch.size(); k++) {
+//                train(batch.getInput(k), batch.getOutput(k), eta);
+//            }
+//            System.out.println(it + "   " + this.overall_error(batch));
+//        }
+//    }
+//
+//    public void train(TrainSet trainSet, int iterations, int batch_size, double init_eta, double factor) {
+//
+//        double er = init_eta;
+//
+//        for (int it = 0; it < iterations; it++) {
+//            TrainSet batch = trainSet.extractBatch(batch_size);
+//            for (int k = 0; k < batch.size(); k++) {
+//                train(batch.getInput(k), batch.getOutput(k), er * factor);
+//            }
+//            System.out.println(it + "   " + (er = this.overall_error(batch)));
+//        }
+//    }
 
     public double overall_error(TrainSet trainSet) {
         double t = 0;
@@ -142,48 +164,61 @@ public class Network {
 
 
     public static void main(String[] args) {
-        DenseLayer denseLayer;
-        NetworkBuilder builder = new NetworkBuilder(1, 1, 3);
-        builder.addLayer(denseLayer = new DenseLayer(3)
-                .setActivationFunction(new ReLU())
-                .setWeights(new double[][]{
-                        {0.1,0.3,0.4},
-                        {0.2,0.2,0.3},
-                        {0.3,0.7,0.9}})
-                .setBias(new double[]{1,1,1}));
-        builder.addLayer(new DenseLayer(3)
-                .setActivationFunction(new Sigmoid())
-                .setWeights(new double[][]{
-                        {0.2,0.3,0.6},
-                        {0.3,0.5,0.4},
-                        {0.5,0.7,0.8}})
-                .setBias(new double[]{1,1,1}));
-        builder.addLayer(new DenseLayer(3)
-                .setActivationFunction(new Softmax())
-                .setWeights(new double[][]{
-                        {0.1,0.3,0.5},
-                        {0.4,0.7,0.2},
-                        {0.8,0.2,0.9}})
-                .setBias(new double[]{1,1,1}));
 
-        Network network = builder.buildNetwork();
-        network.setErrorFunction(new CrossEntropy());
-
-        double[][][] in =  ArrayTools.createComplexFlatArray(0.1,0.2,0.7);
-        double[][][] out =  ArrayTools.createComplexFlatArray(1,0,0);
-
-        for(int i = 0; i < 1000; i++){
-            network.train(in,out,0.003);
-            double e = network.overall_error(in,out);
-            if(Double.isNaN(e)){
-                network.analyseNetwork();
-                break;
-            }else{
-                System.out.println(e);
-            }
+        TrainSet trainSet = new TrainSet(1,1,1,1,1,1);
+        for(int i = 0; i < 10; i++){
+            trainSet.addData(ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)),ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)));
         }
 
-        network.analyseNetwork();
+        System.out.println(trainSet);
+
+        for(TrainSet t:trainSet.shuffledParts(3)){
+            System.out.println(t);
+        }
+
+
+//        DenseLayer denseLayer;
+//        NetworkBuilder builder = new NetworkBuilder(1, 1, 3);
+//        builder.addLayer(denseLayer = new DenseLayer(3)
+//                .setActivationFunction(new ReLU())
+//                .setWeights(new double[][]{
+//                        {0.1, 0.3, 0.4},
+//                        {0.2, 0.2, 0.3},
+//                        {0.3, 0.7, 0.9}})
+//                .setBias(new double[]{1, 1, 1}));
+//        builder.addLayer(new DenseLayer(3)
+//                .setActivationFunction(new Sigmoid())
+//                .setWeights(new double[][]{
+//                        {0.2, 0.3, 0.6},
+//                        {0.3, 0.5, 0.4},
+//                        {0.5, 0.7, 0.8}})
+//                .setBias(new double[]{1, 1, 1}));
+//        builder.addLayer(new DenseLayer(3)
+//                .setActivationFunction(new Softmax())
+//                .setWeights(new double[][]{
+//                        {0.1, 0.3, 0.5},
+//                        {0.4, 0.7, 0.2},
+//                        {0.8, 0.2, 0.9}})
+//                .setBias(new double[]{1, 1, 1}));
+//
+//        Network network = builder.buildNetwork();
+//        network.setErrorFunction(new CrossEntropy());
+//
+//        double[][][] in = ArrayTools.createComplexFlatArray(0.1, 0.2, 0.7);
+//        double[][][] out = ArrayTools.createComplexFlatArray(1, 0, 0);
+//
+//        for (int i = 0; i < 1000; i++) {
+//            network.train(in, out, 0.003);
+//            double e = network.overall_error(in, out);
+//            if (Double.isNaN(e)) {
+//                network.analyseNetwork();
+//                break;
+//            } else {
+//                System.out.println(e);
+//            }
+//        }
+//
+//        network.analyseNetwork();
     }
 
     public void analyseNetwork() {
@@ -191,7 +226,6 @@ public class Network {
         System.out.println(cur.getClass().getSimpleName());
         while (cur.getNext_layer() != null) {
             System.out.println("..................................");
-            cur = cur.getNext_layer();
             System.out.println(cur.getClass().getSimpleName());
             System.out.println("Output:");
             Layer.printArray(cur.getOutput_values());
@@ -199,6 +233,7 @@ public class Network {
             Layer.printArray(cur.getOutput_derivative_values());
             System.out.println("Error:");
             Layer.printArray(cur.getOutput_error_values());
+            cur = cur.getNext_layer();
         }
     }
 
