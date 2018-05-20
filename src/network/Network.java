@@ -225,7 +225,7 @@ public class Network {
         Layer cur = inputLayer;
         System.out.println(cur.getClass().getSimpleName());
         while (cur.getNext_layer() != null) {
-            System.out.println("..................................");
+            System.out.println("############################################################################");
             System.out.println(cur.getClass().getSimpleName());
             System.out.println("Output:");
             Layer.printArray(cur.getOutput_values());
@@ -233,6 +233,10 @@ public class Network {
             Layer.printArray(cur.getOutput_derivative_values());
             System.out.println("Error:");
             Layer.printArray(cur.getOutput_error_values());
+            if(cur instanceof DenseLayer){
+                System.out.println("Weights:");
+                Layer.printArray(new double[][][]{((DenseLayer) cur).getWeights()});
+            }
             cur = cur.getNext_layer();
         }
     }

@@ -114,6 +114,13 @@ public class DenseLayer extends Layer {
         return this;
     }
 
+    public double[][] getWeights() {
+        return weights;
+    }
+
+    public double[] getBias() {
+        return bias;
+    }
 
     @Override
     public void update_weights(double eta) {

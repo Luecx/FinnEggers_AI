@@ -146,7 +146,7 @@ public abstract class Layer {
     }
 
     public static void printArray(double[][][] array) {
-        DecimalFormat df = new DecimalFormat("#.#####");
+        DecimalFormat df = new DecimalFormat("#.###");
         df.setRoundingMode(RoundingMode.CEILING);
         if (array.length == 1 && array[0].length == 1) {
             String s = "";

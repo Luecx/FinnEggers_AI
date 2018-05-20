@@ -20,6 +20,27 @@ public class ArrayTools {
         return out;
     }
 
+    public static double[][] copyArray(double[][] array) {
+        double[][] out = new double[array.length][array[0].length];
+        for(int i = 0; i < out.length; i++) {
+            for(int n = 0; n<  out[0].length; n++) {
+                    out[i][n] = array[i][n];
+
+            }
+        }
+        return out;
+    }
+
+    public static double[] copyArray(double[] array) {
+        double[] out = new double[array.length];
+        for(int i = 0; i < out.length; i++) {
+            out[i] = array[i];
+        }
+        return out;
+    }
+
+
+
     public static double[] convertFlattenedArray(double[][][] array) {
         return array[0][0];
     }
@@ -135,10 +156,10 @@ public class ArrayTools {
         return values;
     }
 
-    public static <T extends Comparable<T>> boolean containsValue(T[] ar, T value){
+    public static <T> boolean containsValue(T[] ar, T value){
         for(int i = 0; i < ar.length; i++){
             if(ar[i] != null){
-                if(value.compareTo(ar[i]) == 0){
+                if(ar[i].equals(value)){
                     return true;
                 }
             }
@@ -155,6 +176,20 @@ public class ArrayTools {
             }
         }
         return index;
+    }
+
+    public static double highestValue(double[][][] values){
+        double max = -1000000000;
+        for(double[][] ar1:values){
+            for(double[] ar2:ar1){
+                for(double d:ar2){
+                    if(max < d){
+                        max = d;
+                    }
+                }
+            }
+        }
+        return max;
     }
 
     public static double randomValue(double lower, double upper) {

@@ -24,8 +24,8 @@ public class QNetwork {
     public CheeseGame cheeseGame;
     public Network network;
 
-    public int buffer_size = 50;
-    public int batch_size = 30;
+    public int buffer_size = 100;
+    public int batch_size = 70;
     public double learning_rate = 0.2;
     public double threshold = 0.7;
     public double discount_factor = 0.95;
