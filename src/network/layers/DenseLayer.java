@@ -53,7 +53,7 @@ public class DenseLayer extends Layer {
                     weights = ArrayTools.createRandomArray(this.OUTPUT_HEIGHT, this.INPUT_HEIGHT, lowerWeightsRange, upperWeigthsRange);
                 }
             }
-            if(bias == null){
+            if(bias == null || bias.length != this.OUTPUT_HEIGHT){
                 bias =  ArrayTools.createRandomArray(this.OUTPUT_HEIGHT, lowerBiasRange, upperBiasRange);
             }
             if(activationFunction == null) {
@@ -120,6 +120,10 @@ public class DenseLayer extends Layer {
 
     public double[] getBias() {
         return bias;
+    }
+
+    public ActivationFunction getActivationFunction() {
+        return activationFunction;
     }
 
     @Override

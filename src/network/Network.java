@@ -1,19 +1,19 @@
 package network;
 
 import network.data.TrainSet;
-import network.functions.activation.ActivationFunction;
-import network.functions.activation.ReLU;
-import network.functions.activation.Sigmoid;
-import network.functions.activation.Softmax;
+import network.functions.activation.*;
 import network.functions.error.CrossEntropy;
-import network.layers.DenseLayer;
-import network.layers.InputLayer;
-import network.layers.Layer;
-import network.layers.OutputLayer;
+import network.functions.error.MSE;
+import network.layers.*;
 import network.tools.ArrayTools;
 import network.functions.error.ErrorFunction;
+import parser.parser.Parser;
+import parser.parser.ParserTools;
+import parser.tree.Attribute;
+import parser.tree.Node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by finne on 25.01.2018.
@@ -115,6 +115,100 @@ public class Network {
     }
 
 
+    public void save_network(String file){
+        Parser p = new Parser();
+        p.create(file);
+        Node root = new Node("Network");
+        root.addAttribute("loss_function", this.getErrorFunction().getClass().getSimpleName());
+        root.addAttribute("input_dimensions", "[" + this.getINPUT_DEPTH() + ","+ this.getINPUT_WIDTH() +","+this.getINPUT_HEIGHT()+"]");
+        Layer layer = this.getInputLayer();
+        int index = 0;
+        while(layer != this.getOutputLayer()){
+            layer = layer.getNext_layer();
+            index ++;
+            Node layer_node = null;
+
+            if(layer instanceof PoolingLayer){
+                layer_node = new Node("PoolingLayer " + index);
+                layer_node.addAttribute("pooling_factor", ""+((PoolingLayer) layer).getPooling_factor());
+            } else if(layer instanceof TransformationLayer){
+                layer_node = new Node("TransformationLayer " + index);
+            } else if(layer instanceof DenseLayer){
+                layer_node = new Node("DenseLayer " + index);
+                layer_node.addAttribute(new Attribute("neurons",""+layer.getOUTPUT_HEIGHT()));
+                layer_node.addAttribute(new Attribute("bias", Arrays.toString(((DenseLayer) layer).getBias())));
+                layer_node.addAttribute("activation_function", ((DenseLayer) layer).getActivationFunction().getClass().getSimpleName());
+                Node weights = new Node("weights");
+                int id = 0;
+                for(double[] d: ((DenseLayer) layer).getWeights()){
+                    weights.addAttribute(id + "", Arrays.toString(d));
+                    id ++;
+                }
+                layer_node.addChild(weights);
+            } else if(layer instanceof ConvLayer){
+                //coming soon
+            }
+
+            root.addChild(layer_node);
+        }
+
+        p.getContent().addChild(root);
+
+        try {
+            p.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Network load_network(String file){
+        Parser p = new Parser();
+        try {
+            p.load(file);
+            Node root = p.getContent().getChild("Network");
+
+            int[] dim = ParserTools.parseIntArray(root.getAttribute("input_dimensions").getValue());
+            NetworkBuilder builder = new NetworkBuilder(dim[0], dim[1], dim[2]);
+
+            Layer l = null;
+            for(Node n:root.getChilds()){
+                String name = n.getName().split(" ")[0];
+                if(name.equals("DenseLayer")){
+                    l = new DenseLayer(Integer.parseInt(n.getAttribute("neurons").getValue()));
+                    switch (n.getAttribute("activation_function").getValue()){
+                        case "Sigmoid": ((DenseLayer) l).setActivationFunction(new Sigmoid());break;
+                        case "ReLU": ((DenseLayer) l).setActivationFunction(new ReLU());break;
+                        case "LeakyReLU": ((DenseLayer) l).setActivationFunction(new LeakyReLU());break;
+                        case "Softmax": ((DenseLayer) l).setActivationFunction(new Softmax());break;
+                        case "Linear": ((DenseLayer) l).setActivationFunction(new Linear());break;
+                        case "TanH": ((DenseLayer) l).setActivationFunction(new TanH());break;
+                    }
+                    ((DenseLayer) l).setBias(ParserTools.parseDoubleArray(n.getAttribute("bias").getValue()));
+                    Node w = n.getChild("weights");
+                    double[][] weights = new double[w.getAttributes().size()][];
+                    for(Attribute b:w.getAttributes()){
+                        weights[Integer.parseInt(b.getName())] = ParserTools.parseDoubleArray(b.getValue());
+                    }
+                    ((DenseLayer) l).setWeights(weights);
+                } else if(name.equals("TransformationLayer")){
+                    l = new TransformationLayer();
+                } else if(name.equals("PoolingLayer")){
+                    l = new PoolingLayer(Integer.parseInt(n.getAttribute("pooling_factor").getValue()));
+                }
+                builder.addLayer(l);
+            }
+
+            Network network = builder.buildNetwork();
+            switch (root.getAttribute("loss_function").getValue()){
+                case "CrossEntropy": network.setErrorFunction(new CrossEntropy());break;
+                case "MSE": network.setErrorFunction(new MSE());break;
+            }
+            return network;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 //    public void train(TrainSet trainSet, int iterations, int batch_size, double eta) {
 //
@@ -165,44 +259,51 @@ public class Network {
 
     public static void main(String[] args) {
 
-        TrainSet trainSet = new TrainSet(1,1,1,1,1,1);
-        for(int i = 0; i < 10; i++){
-            trainSet.addData(ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)),ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)));
-        }
-
-        System.out.println(trainSet);
-
-        for(TrainSet t:trainSet.shuffledParts(3)){
-            System.out.println(t);
-        }
 
 
-//        DenseLayer denseLayer;
-//        NetworkBuilder builder = new NetworkBuilder(1, 1, 3);
-//        builder.addLayer(denseLayer = new DenseLayer(3)
-//                .setActivationFunction(new ReLU())
-//                .setWeights(new double[][]{
-//                        {0.1, 0.3, 0.4},
-//                        {0.2, 0.2, 0.3},
-//                        {0.3, 0.7, 0.9}})
-//                .setBias(new double[]{1, 1, 1}));
-//        builder.addLayer(new DenseLayer(3)
-//                .setActivationFunction(new Sigmoid())
-//                .setWeights(new double[][]{
-//                        {0.2, 0.3, 0.6},
-//                        {0.3, 0.5, 0.4},
-//                        {0.5, 0.7, 0.8}})
-//                .setBias(new double[]{1, 1, 1}));
-//        builder.addLayer(new DenseLayer(3)
-//                .setActivationFunction(new Softmax())
-//                .setWeights(new double[][]{
-//                        {0.1, 0.3, 0.5},
-//                        {0.4, 0.7, 0.2},
-//                        {0.8, 0.2, 0.9}})
-//                .setBias(new double[]{1, 1, 1}));
+//        TrainSet trainSet = new TrainSet(1,1,1,1,1,1);
+//        for(int i = 0; i < 10; i++){
+//            trainSet.addData(ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)),ArrayTools.createComplexFlatArray((int)(Math.random() * 1000)));
+//        }
 //
-//        Network network = builder.buildNetwork();
-//        network.setErrorFunction(new CrossEntropy());
+//        System.out.println(trainSet);
+//
+//        for(TrainSet t:trainSet.shuffledParts(3)){
+//            System.out.println(t);
+//        }
+
+
+        DenseLayer denseLayer;
+        NetworkBuilder builder = new NetworkBuilder(1, 1, 3);
+        builder.addLayer(denseLayer = new DenseLayer(3)
+                .setActivationFunction(new ReLU())
+                .setWeights(new double[][]{
+                        {0.1, 0.3, 0.4},
+                        {0.2, 0.2, 0.3},
+                        {0.3, 0.7, 0.9}})
+                .setBias(new double[]{1, 1, 1}));
+        builder.addLayer(new DenseLayer(3)
+                .setActivationFunction(new Sigmoid())
+                .setWeights(new double[][]{
+                        {0.2, 0.3, 0.6},
+                        {0.3, 0.5, 0.4},
+                        {0.5, 0.7, 0.8}})
+                .setBias(new double[]{1, 1, 1}));
+        builder.addLayer(new DenseLayer(3)
+                .setActivationFunction(new Softmax())
+                .setWeights(new double[][]{
+                        {0.1, 0.3, 0.5},
+                        {0.4, 0.7, 0.2},
+                        {0.8, 0.2, 0.9}})
+                .setBias(new double[]{1, 1, 1}));
+
+        Network network = builder.buildNetwork();
+        network.setErrorFunction(new CrossEntropy());
+
+        network.save_network("res/net1");
+
+        Network network1 = Network.load_network("res/net1");
+        network1.save_network("res/net2");
 //
 //        double[][][] in = ArrayTools.createComplexFlatArray(0.1, 0.2, 0.7);
 //        double[][][] out = ArrayTools.createComplexFlatArray(1, 0, 0);

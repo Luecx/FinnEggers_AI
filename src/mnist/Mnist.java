@@ -40,54 +40,70 @@ public class Mnist {
 //        Layer.printArray(network.calculate(in));
 //        Layer.printArray(out);
 
-        NetworkBuilder builder = new NetworkBuilder(1, 28, 28);
-        builder.addLayer(new TransformationLayer());
-        builder.addLayer(new DenseLayer(75)
-                .setActivationFunction(new Sigmoid()));
-        builder.addLayer(new DenseLayer(30)
-                .setActivationFunction(new Sigmoid()));
-        builder.addLayer(new DenseLayer(10)
-                .setActivationFunction(new Softmax())
-        );
-        Network network = builder.buildNetwork();
-        network.setErrorFunction(new CrossEntropy());
-
-        TrainSet trainSet = createTrainSet(0,9999);
-        trainData(network, trainSet, 50,10);
-        testTrainSet(network, createTrainSet(10000,11999),10);
-
-//        ConvLayer conv1;
-//
 //        NetworkBuilder builder = new NetworkBuilder(1, 28, 28);
-//        builder.addLayer(conv1 = new ConvLayer(12, 5, 1, 2)
-//                .biasRange(0, 0)
-//                .weightsRange(-2, 2)
-//                .setActivationFunction(new ReLU()));
-//        builder.addLayer(new PoolingLayer(2));
-//        builder.addLayer(new ConvLayer(30, 5, 1, 0)
-//                .biasRange(0, 0)
-//                .weightsRange(-2, 2)
-//                .setActivationFunction(new ReLU()));
-//        builder.addLayer(new PoolingLayer(2));
 //        builder.addLayer(new TransformationLayer());
-//        builder.addLayer(new DenseLayer(120)
-//                .setActivationFunction(new ReLU())
-//        );
+//        builder.addLayer(new DenseLayer(75)
+//                .setActivationFunction(new Sigmoid()));
+//        builder.addLayer(new DenseLayer(30)
+//                .setActivationFunction(new Sigmoid()));
 //        builder.addLayer(new DenseLayer(10)
 //                .setActivationFunction(new Softmax())
 //        );
 //        Network network = builder.buildNetwork();
 //        network.setErrorFunction(new CrossEntropy());
 //
-//        network.printArchitecture();
-//
-//        TrainSet trainSet = createTrainSet(0,2999);
-//
-//
-//        network.train(trainSet,3,10,0.001);
-//
-//        testTrainSet(network, trainSet,1);
-//
+//        TrainSet trainSet = createTrainSet(0,9999);
+//        trainData(network, trainSet, 50,10);
+//        testTrainSet(network, createTrainSet(10000,11999),10);
+
+
+
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+
+        ConvLayer conv1;
+
+        NetworkBuilder builder = new NetworkBuilder(1, 28, 28);
+        builder.addLayer(conv1 = new ConvLayer(12, 5, 1, 2)
+                .biasRange(0, 0)
+                .weightsRange(-2, 2)
+                .setActivationFunction(new ReLU()));
+        builder.addLayer(new PoolingLayer(2));
+        builder.addLayer(new ConvLayer(30, 5, 1, 0)
+                .biasRange(0, 0)
+                .weightsRange(-2, 2)
+                .setActivationFunction(new ReLU()));
+        builder.addLayer(new PoolingLayer(2));
+        builder.addLayer(new TransformationLayer());
+        builder.addLayer(new DenseLayer(120)
+                .setActivationFunction(new ReLU())
+        );
+        builder.addLayer(new DenseLayer(10)
+                .setActivationFunction(new Softmax())
+        );
+        Network network = builder.buildNetwork();
+        network.setErrorFunction(new CrossEntropy());
+
+        network.printArchitecture();
+
+        TrainSet trainSet = createTrainSet(0,999);
+
+
+        network.train(trainSet,3,10,0.0001);
+
+        testTrainSet(network, trainSet,1);
+
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+        //Julian Abhari
+
 //
 //
 //

@@ -96,4 +96,10 @@ public class PoolingLayer extends Layer {
     public void update_weights(double eta) {
 
     }
+
+
+    public int getPooling_factor() {
+        return pooling_factor;
+    }
+
 }
